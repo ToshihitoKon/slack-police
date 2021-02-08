@@ -1,0 +1,15 @@
+# slack警察です👮
+
+- 絵文字の監視
+  - 追加
+  - 削除
+  - 総絵文字数
+
+
+## env
+
+```
+SLACK_POLICE_TOKEN="xoxb-YOUR_SLACK_APP_TOKEN"
+SLACK_POLICE_SIGNING_SECRET="YOUR_SLACK_APP_SIGNING_SECRET"
+SLACK_POLICE_EMOJI_CHANNEL_ID="POST_SLACK_CH_ID"
+```
