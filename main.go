@@ -12,8 +12,8 @@ import (
 
 func mustEnv(name string) (string, bool) {
 	value := os.Getenv(name)
-	if name == "" {
-		log.Println("must ", name)
+	if value == "" {
+		log.Println("must env ", name)
 		return "", false
 	}
 	return value, true
@@ -38,7 +38,6 @@ func main() {
 		return
 	}
 
-	// clients
 	api := slack.New(
 		botToken,
 		//slack.OptionDebug(true),
@@ -50,34 +49,37 @@ func main() {
 		//socketmode.OptionDebug(true),
 		//socketmode.OptionLog(log.New(os.Stdout, "socketmode: ", log.Lshortfile|log.LstdFlags)),
 	)
-	go func(api *slack.Client, policeChannelID string) {
-		for evt := range client.Events {
-			switch evt.Type {
-			case socketmode.EventTypeConnecting:
-				fmt.Println("Connecting to Slack with Socket Mode...")
-			case socketmode.EventTypeConnectionError:
-				fmt.Println("Connection failed. Retrying later...")
-			case socketmode.EventTypeConnected:
-				fmt.Println("Connected to Slack with Socket Mode.")
-			case socketmode.EventTypeEventsAPI:
-				eventsAPIEvent, ok := evt.Data.(slackevents.EventsAPIEvent)
-				if !ok {
-					fmt.Printf("Ignored %+v\n", evt)
-					continue
-				}
-				client.Ack(*evt.Request)
+	go runner(api, client, policeChannelID)
 
-				switch eventsAPIEvent.Type {
-				case slackevents.CallbackEvent:
-					procInnerEvent(api, eventsAPIEvent.InnerEvent, policeChannelID)
-				}
-			}
-		}
-	}(api, policeChannelID)
 	fmt.Println("[INFO] slack-police")
 	fmt.Println("[INFO] run websocket")
 	client.Run()
 
+}
+
+func runner(api *slack.Client, client *socketmode.Client, policeChannelID string) {
+	for evt := range client.Events {
+		switch evt.Type {
+		case socketmode.EventTypeConnecting:
+			fmt.Println("Connecting to Slack with Socket Mode...")
+		case socketmode.EventTypeConnectionError:
+			fmt.Println("Connection failed. Retrying later...")
+		case socketmode.EventTypeConnected:
+			fmt.Println("Connected to Slack with Socket Mode.")
+		case socketmode.EventTypeEventsAPI:
+			eventsAPIEvent, ok := evt.Data.(slackevents.EventsAPIEvent)
+			if !ok {
+				fmt.Printf("Ignored %+v\n", evt)
+				continue
+			}
+			client.Ack(*evt.Request)
+
+			switch eventsAPIEvent.Type {
+			case slackevents.CallbackEvent:
+				procInnerEvent(api, eventsAPIEvent.InnerEvent, policeChannelID)
+			}
+		}
+	}
 }
 
 func procInnerEvent(api *slack.Client, event slackevents.EventsAPIInnerEvent, policeChannelID string) {
