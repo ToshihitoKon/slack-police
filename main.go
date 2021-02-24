@@ -91,22 +91,29 @@ func procInnerEvent(api *slack.Client, event slackevents.EventsAPIInnerEvent, po
 				api.PostMessage(
 					policeChannelID,
 					slack.MsgOptionText(
-						fmt.Sprintf("絵文字警察です👮\n:%s: %s が追加されました", ev.Name, ev.Name),
-						false)))
-		case "remove":
-			log.Println(
-				api.PostMessage(
-					policeChannelID,
-					slack.MsgOptionText(
-						fmt.Sprintf("絵文字警察です👮\n%s が消えました", ev.Names[0]),
-						false)))
-		case "rename":
-			log.Println(
-				api.PostMessage(
-					policeChannelID,
-					slack.MsgOptionText(
-						fmt.Sprintf("絵文字警察です👮\n:%s: の名前がかわりました\n%s -> %s", ev.NewName, ev.OldName, ev.NewName),
-						false)))
+						fmt.Sprintf(":%s: %s が追加されました", ev.Name, ev.Name),
+						false,
+					),
+					slack.MsgOptionIconEmoji(":male-police-officer:"),
+					slack.MsgOptionUsername("絵文字警察"),
+				),
+			)
+			/*
+				case "remove":
+					log.Println(
+						api.PostMessage(
+							policeChannelID,
+							slack.MsgOptionText(
+								fmt.Sprintf("絵文字警察です👮\n%s が消えました", ev.Names[0]),
+								false)))
+				case "rename":
+					log.Println(
+						api.PostMessage(
+							policeChannelID,
+							slack.MsgOptionText(
+								fmt.Sprintf("絵文字警察です👮\n:%s: の名前がかわりました\n%s -> %s", ev.NewName, ev.OldName, ev.NewName),
+								false)))
+			*/
 		default:
 			log.Println("dismiss: ", ev)
 		}
